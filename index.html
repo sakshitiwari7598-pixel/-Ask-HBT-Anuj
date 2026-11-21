@@ -13,7 +13,7 @@
 <div class="footer">HBT ANUJ · Learn at your pace · Built for curious minds</div></main></div><div class="toast" id="toast"></div>
 <script>
 const $=id=>document.getElementById(id);let history=[];
-const AI_API_URL='PASTE_YOUR_CLOUDFLARE_WORKER_URL_HERE';
+const AI_API_URL='https://crimson-bush-abe0.sakshitiwari7598.workers.dev';
 async function callAI(message,context='',mode='tutor',chatHistory=[]){
  if(!AI_API_URL.startsWith('https://')) throw new Error('The AI backend URL has not been added yet.');
  const res=await fetch(AI_API_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message,context,mode,history:chatHistory})});
