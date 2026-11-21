@@ -63,7 +63,7 @@ export default {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          model: "gpt-5.5",
+          model: "gpt-6.1-sol",
           instructions: INSTRUCTIONS,
           input,
           max_output_tokens: 1800
