@@ -1,4 +1,5 @@
 const ALLOWED_ORIGIN = "https://sakshitiwari7598-pixel.github.io";
+const MODEL = "@cf/google/gemma-4-26b-a4b-it";
 
 const INSTRUCTIONS = `You are HBT ANUJ, a friendly, patient and encouraging AI learning companion for school and college students.
 Explain concepts accurately in simple language, adapting to the class and topic provided.
@@ -18,7 +19,7 @@ function cors(origin) {
   };
 }
 
-function json(data, status, headers) {
+function json(data, status = 200, headers = {}) {
   return new Response(JSON.stringify(data), {
     status,
     headers: { "Content-Type": "application/json; charset=utf-8", ...headers }
@@ -36,7 +37,9 @@ export default {
     }
     if (origin !== ALLOWED_ORIGIN) return json({ error: "Origin not allowed." }, 403, headers);
     if (request.method !== "POST") return json({ error: "Use POST." }, 405, headers);
-    if (!env.OPENAI_API_KEY) return json({ error: "The AI service is not configured yet. Add OPENAI_API_KEY as a Worker secret." }, 503, headers);
+    if (!env.AI || typeof env.AI.run !== "function") {
+      return json({ error: "Cloudflare Workers AI is not connected yet. Add an AI binding named AI in Worker Settings > Bindings." }, 503, headers);
+    }
 
     try {
       const body = await request.json();
@@ -45,46 +48,38 @@ export default {
       const mode = String(body.mode || "tutor").slice(0, 30);
       const history = Array.isArray(body.history) ? body.history.slice(-8).map(item => ({
         role: item.role === "assistant" ? "assistant" : "user",
-        content: String(item.content || "").slice(0, 2500)
+        content: String(item.content || "").slice(0, 1800)
       })) : [];
 
       if (!message) return json({ error: "Please enter a question." }, 400, headers);
       if (message.length > 7000) return json({ error: "Please keep each request under 7,000 characters." }, 413, headers);
 
-      const input = [
-        ...history,
-        { role: "user", content: (context ? "Student context: " + context + "\n\n" : "") + "Task: " + mode + "\n\n" + message }
-      ];
+      const prompt = (context ? "Student context: " + context + "\n\n" : "") +
+        "Task mode: " + mode + "\n\n" + message;
 
-      const upstream = await fetch("https://api.openai.com/v1/responses", {
-        method: "POST",
-        headers: {
-          "Authorization": "Bearer " + env.OPENAI_API_KEY,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          model: "gpt-6.1-sol",
-          instructions: INSTRUCTIONS,
-          input,
-          max_output_tokens: 1800
-        })
+      const result = await env.AI.run(MODEL, {
+        messages: [
+          { role: "system", content: INSTRUCTIONS },
+          ...history,
+          { role: "user", content: prompt }
+        ],
+        max_tokens: 1600,
+        chat_template_kwargs: { enable_thinking: false }
       });
 
-      const data = await upstream.json();
-      if (!upstream.ok) {
-        return json({ error: data.error?.message || "The AI service returned an error. Check API billing and model access." }, 502, headers);
-      }
-
-      const answer = data.output_text || (data.output || [])
-        .flatMap(item => item.content || [])
-        .filter(item => item.type === "output_text")
-        .map(item => item.text)
-        .join("\n");
+      const answer = result?.response ||
+        result?.choices?.[0]?.message?.content ||
+        result?.result?.response ||
+        "";
 
       if (!answer) return json({ error: "The AI returned an empty answer. Please try again." }, 502, headers);
-      return json({ answer }, 200, headers);
+      return json({ answer: String(answer) }, 200, headers);
     } catch (error) {
-      return json({ error: "Could not process the request. Please try again." }, 500, headers);
+      const message = String(error?.message || "");
+      const safeMessage = /limit|quota|capacity|neurons|billing/i.test(message)
+        ? "The free daily Cloudflare AI allowance may have been reached. Please try again after the daily reset."
+        : "Cloudflare AI could not process this request. Please try again in a moment.";
+      return json({ error: safeMessage }, 502, headers);
     }
   }
 };
