@@ -42,13 +42,17 @@ export default {
     }
 
     try {
+      const contentLength = Number(request.headers.get("Content-Length") || 0);
+      if (contentLength > 24000) return json({ error: "Your request is too large. Please shorten it and try again." }, 413, headers);
       const body = await request.json();
-      const message = String(body.message || "").trim();
-      const context = String(body.context || "").slice(0, 1200);
-      const mode = String(body.mode || "tutor").slice(0, 30);
-      const history = Array.isArray(body.history) ? body.history.slice(-8).map(item => ({
-        role: item.role === "assistant" ? "assistant" : "user",
-        content: String(item.content || "").slice(0, 1800)
+      if (!body || typeof body !== "object" || Array.isArray(body)) return json({ error: "Invalid request format." }, 400, headers);
+      if (typeof body.message !== "string") return json({ error: "Please enter a question." }, 400, headers);
+      const message = body.message.trim();
+      const context = typeof body.context === "string" ? body.context.slice(0, 1200) : "";
+      const mode = typeof body.mode === "string" ? body.mode.slice(0, 30) : "tutor";
+      const history = Array.isArray(body.history) ? body.history.slice(-8).filter(item => item && (item.role === "user" || item.role === "assistant") && typeof item.content === "string").map(item => ({
+        role: item.role,
+        content: item.content.slice(0, 1200)
       })) : [];
 
       if (!message) return json({ error: "Please enter a question." }, 400, headers);
@@ -65,7 +69,7 @@ export default {
         ],
         max_tokens: 1600,
         chat_template_kwargs: { enable_thinking: false }
-      });
+      }, { rejectIfBusy: true });
 
       const answer = result?.response ||
         result?.choices?.[0]?.message?.content ||
@@ -76,8 +80,8 @@ export default {
       return json({ answer: String(answer) }, 200, headers);
     } catch (error) {
       const message = String(error?.message || "");
-      const safeMessage = /limit|quota|capacity|neurons|billing/i.test(message)
-        ? "The free daily Cloudflare AI allowance may have been reached. Please try again after the daily reset."
+      const safeMessage = /limit|quota|capacity|neurons|billing|busy/i.test(message)
+        ? "The AI service is busy or its free usage limit may have been reached. Please wait and try again."
         : "Cloudflare AI could not process this request. Please try again in a moment.";
       return json({ error: safeMessage }, 502, headers);
     }
