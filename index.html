@@ -147,8 +147,8 @@ async function supportTalk(){let f=$('feeling').value,t=$('feel-text').value.tri
  window.hbtSendMessage=async function(){
   const q=input.value.trim(); if(!q||button.disabled)return;
   const lower=q.toLowerCase();
-  if(/\\b(exit friend mode|stop friend mode|tutor mode|study mode)\\b/.test(lower)){friendMode=false;}
-  else if(/^(hello|hi|hey|hlo|namaste)[!,.? ]*$/.test(lower)||/\\b(hello bhai|hlo bhai|hi bhai|friend mode|friend system)\\b/.test(lower)){friendMode=true;}
+  if(/\b(exit friend mode|stop friend mode|tutor mode|study mode)\b/.test(lower)){friendMode=false;}
+  else if(/^(hello|hi|hey|hlo|namaste)[!,.? ]*$/.test(lower)||/\b(hello bhai|hlo bhai|hi bhai|friend mode|friend system)\b/.test(lower)){friendMode=true;}
   const bubble=(text,who)=>{const row=document.createElement('div');row.className='hbt-msg '+who;const av=document.createElement('div');av.className='hbt-avatar';av.textContent=who==='user'?'You':'H';const b=document.createElement('div');b.className='hbt-bubble';b.textContent=text;row.append(av,b);feed.append(row);feed.scrollTop=feed.scrollHeight;return row};
   const welcome=document.getElementById('hbt-welcome');if(welcome)welcome.remove();
   bubble(q,'user');input.value='';button.disabled=true;button.textContent='…';
@@ -161,7 +161,7 @@ async function supportTalk(){let f=$('feeling').value,t=$('feel-text').value.tri
    if(!response.ok)throw new Error(data.error||'Server error ('+response.status+')');
    if(typeof data.answer!=='string'||!data.answer.trim())throw new Error('AI server returned an empty answer.');
    let answer=data.answer.trim();
-   if(friendMode)answer=answer.replace(/\\s+/g,' ').split(/\\s+/).slice(0,15).join(' ');
+   if(friendMode)answer=answer.replace(/\s+/g,' ').split(/\s+/).slice(0,15).join(' ');
    waiting.querySelector('.hbt-bubble').textContent=answer;
   }catch(error){waiting.querySelector('.hbt-bubble').textContent='Message could not be sent: '+(error.message||'Unknown error')+'. Please try again.'}
   finally{button.disabled=false;button.textContent='↑';input.focus()}
