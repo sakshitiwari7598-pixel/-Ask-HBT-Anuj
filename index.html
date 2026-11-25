@@ -334,7 +334,7 @@ async function supportTalk(){let f=$('feeling').value,t=$('feel-text').value.tri
     }
     return nativeFetch.call(this,url,opts);
    };
-   try{await original();}finally{window.fetch=nativeFetch;pending={imageData:'',imageName:'',pdfText:'',pdfName:''};}
+   try{await original();}finally{window.fetch=nativeFetch;pending={imageData:'',imageName:'',pdfText:'',pdfName:''};show('');}
   };
  }
 })();
