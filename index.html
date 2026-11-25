@@ -241,3 +241,14 @@ async function supportTalk(){let f=$('feeling').value,t=$('feel-text').value.tri
 </script>
 
 </body></html>
+<style>
+/* Make selected theme colour visible on chat message bubbles */
+#hbt-chat-app .hbt-msg.user .hbt-bubble{
+  background:linear-gradient(135deg,var(--hbt-accent),var(--hbt-accent2));
+  border-color:var(--hbt-accent);
+  color:#101426;
+}
+#hbt-chat-app .hbt-msg.assistant .hbt-bubble{
+  border-color:color-mix(in srgb,var(--hbt-accent) 48%,#293750);
+}
+</style>
