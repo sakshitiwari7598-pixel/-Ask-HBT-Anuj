@@ -64,7 +64,12 @@
     </div>
    </div>
   </div>
-  <div class="hbt-compose-wrap"><div class="hbt-compose"><input id="hbt-input" type="text" autocomplete="off" placeholder="Message HBT ANUJ..." onkeydown="if(event.key==='Enter'&&!event.isComposing){event.preventDefault();document.getElementById('hbt-send').click();}"><button type="button" class="hbt-send" id="hbt-send" aria-label="Send message" onclick="window.hbtSendMessage && window.hbtSendMessage()">↑</button></div><div class="hbt-hint">HBT ANUJ can make mistakes. Check important study answers with your textbook.</div></div>
+  <div class="hbt-compose-wrap"><div class="hbt-compose">
+   <button type="button" class="hbt-tool-btn" id="hbt-photo-btn" title="Attach photo" aria-label="Attach photo">📷</button>
+   <button type="button" class="hbt-tool-btn" id="hbt-pdf-btn" title="Attach PDF" aria-label="Attach PDF">📄</button>
+   <input id="hbt-photo-input" type="file" accept="image/*" hidden>
+   <input id="hbt-pdf-input" type="file" accept="application/pdf,.pdf" hidden>
+   <input id="hbt-input" type="text" autocomplete="off" placeholder="Message HBT ANUJ..." onkeydown="if(event.key==='Enter'&&!event.isComposing){event.preventDefault();document.getElementById('hbt-send').click();}"><button type="button" class="hbt-send" id="hbt-send" aria-label="Send message" onclick="window.hbtSendMessage && window.hbtSendMessage()">↑</button></div><div class="hbt-hint">HBT ANUJ can make mistakes. Check important study answers with your textbook.</div></div>
  </main>
 </div><div class="app"><aside class="sidebar"><div class="brand"><div class="logo">✦</div><div><strong>HBT ANUJ</strong><small>LEARN • GROW • SHINE</small></div></div><div class="nav-label">WORKSPACE</div><nav class="nav"><button class="active" data-page="home"><span class="ico">⌂</span><span class="navtext">Home</span></button><button data-page="tutor"><span class="ico">✧</span><span class="navtext">AI Tutor</span></button><button data-page="notes"><span class="ico">▤</span><span class="navtext">Notes maker</span></button><button data-page="practice"><span class="ico">◎</span><span class="navtext">Exam arena</span></button><button data-page="wellbeing"><span class="ico">♡</span><span class="navtext">Your space</span></button></nav><div class="side-card"><strong>Small steps, big progress ✨</strong><p>Learning is a journey. Keep asking, keep growing.</p><button onclick="navigate('practice')">Practice now →</button></div></aside><main class="main"><div class="topbar"><div class="crumb" id="crumb">Home</div><div class="top-right"><span class="pill">✦ Your learning space</span><div class="avatar">H</div></div></div><section class="section active" id="home"><div class="hero"><div><div class="eyebrow">YOUR PERSONAL LEARNING COMPANION</div><h1>Hey, learner. <span class="gradient">Ready to shine?</span></h1><p>Ask freely, learn deeply, and take things one step at a time. I'm here to help with studies and everything in between.</p></div><div class="date-chip" id="today"></div></div><div class="grid"><div class="card chat-card"><div class="card-head"><div><h2>✧ Ask HBT Anuj</h2><div class="sub">Your friendly study companion</div></div><span class="status">● Ready to help</span></div><div class="chat-body" id="chat"><div class="welcome"><div class="orb">✦</div><h3>What would you like to learn today?</h3><p>Ask a question, share a problem, or tell me what you're finding difficult. No question is too small.</p></div></div><div class="composer"><textarea id="question" placeholder="Ask any question... (Enter to send)" rows="2"></textarea><button class="send" id="send" aria-label="Send">➤</button></div><div class="quick"><button class="chip" data-prompt="Explain Newton's laws of motion with examples">Explain a concept</button><button class="chip" data-prompt="Help me make a study plan for my exams">Make a study plan</button><button class="chip" data-prompt="Give me 5 practice questions on algebra">Practice questions</button></div></div><div class="right-col"><div class="card"><div class="card-head"><h2>✦ Learning tools</h2></div><div class="feature-list"><div class="feature"><div class="fi">▤</div><div><strong>Smart notes</strong><small>Short and detailed revision notes</small></div><button onclick="navigate('notes')">Open →</button></div><div class="feature"><div class="fi">◎</div><div><strong>Exam practice</strong><small>Questions by topic and difficulty</small></div><button onclick="navigate('practice')">Open →</button></div><div class="feature"><div class="fi">♡</div><div><strong>Your space</strong><small>Check in and talk things through</small></div><button onclick="navigate('wellbeing')">Open →</button></div></div></div><div class="card"><h2 style="margin:0">How are you feeling?</h2><div class="sub">A quick check-in. Your feelings matter.</div><div class="mood" id="moods"><button data-mood="Great">😊<span>Great</span></button><button data-mood="Okay">🙂<span>Okay</span></button><button data-mood="Tired">😴<span>Tired</span></button><button data-mood="Stressed">😟<span>Stressed</span></button></div><p class="support-note" id="mood-response">Choose one. There's no right or wrong answer.</p></div></div></div></section>
 <section class="section" id="tutor"><div class="hero"><div><div class="eyebrow">LEARN WITHOUT LIMITS</div><h1>Your <span class="gradient">AI Tutor</span></h1><p>Tell me your class, chapter, and question. We'll work through it together.</p></div></div><div class="card"><div class="field"><label>Class / Level</label><select id="level"><option>Class 9</option><option>Class 10</option><option>Class 11</option><option>Class 12</option><option>College</option><option>Other</option></select></div><div class="field"><label>Chapter or topic (optional)</label><input id="chapter" placeholder="e.g. Motion, Number Systems, Democracy"></div><div class="field"><label>Your question</label><textarea id="tutor-question" rows="4" placeholder="Type your question here..."></textarea></div><button class="primary" onclick="askTutor()">Explain this question ✦</button><div class="output" id="tutor-output">Your explanation will appear here, with an exam tip.</div></div></section>
@@ -261,7 +266,79 @@ async function supportTalk(){let f=$('feeling').value,t=$('feel-text').value.tri
 })();
 </script>
 
-</body></html>
+
+<style>
+#hbt-chat-app .hbt-tool-btn{flex:0 0 40px;width:40px;height:40px;border:1px solid #35435d;border-radius:12px;background:#172237;color:#eef3ff;cursor:pointer;font-size:18px;display:grid;place-items:center}
+#hbt-chat-app .hbt-tool-btn:hover{border-color:var(--hbt-accent);background:#202d45}
+#hbt-chat-app .hbt-tool-btn:disabled{opacity:.5;cursor:wait}
+#hbt-chat-app .hbt-mic-btn.recording{background:#5a2434;border-color:#ff6b81;animation:hbtPulse 1s infinite}
+#hbt-chat-app .hbt-attachment-status{max-width:790px;margin:7px auto 0;min-height:16px;color:#aebbd0;font-size:11px;padding:0 5px}
+#hbt-chat-app .hbt-attachment-status.error{color:#ff9ba8}
+@keyframes hbtPulse{50%{box-shadow:0 0 0 5px #ff6b8133}}
+@media(max-width:520px){#hbt-chat-app .hbt-tool-btn{flex-basis:35px;width:35px;height:38px;font-size:16px}#hbt-chat-app .hbt-compose{gap:5px;padding:7px}#hbt-chat-app .hbt-compose input{padding:7px;font-size:13px}}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+(function(){
+ const input=document.getElementById('hbt-input'),photoBtn=document.getElementById('hbt-photo-btn'),pdfBtn=document.getElementById('hbt-pdf-btn');
+ const photoInput=document.getElementById('hbt-photo-input'),pdfInput=document.getElementById('hbt-pdf-input');
+ const micBtn=document.createElement('button');micBtn.type='button';micBtn.id='hbt-mic-btn';micBtn.className='hbt-tool-btn';micBtn.textContent='🎙️';micBtn.title='Dictate your message';micBtn.setAttribute('aria-label','Dictate your message');
+ const send=document.getElementById('hbt-send');if(send&&send.parentNode)send.parentNode.insertBefore(micBtn,send);
+ const compose=document.querySelector('#hbt-chat-app .hbt-compose');
+ const status=document.createElement('div');status.id='hbt-attachment-status';status.className='hbt-attachment-status';status.setAttribute('aria-live','polite');if(compose&&compose.parentNode)compose.parentNode.insertBefore(status,compose.nextSibling);
+ if(!input||!photoBtn||!pdfBtn||!photoInput||!pdfInput||!send)return;
+ let pending={imageData:'',imageName:'',pdfText:'',pdfName:''};
+ const show=(t,err)=>{status.textContent=t;status.classList.toggle('error',!!err)};
+ photoBtn.onclick=()=>photoInput.click();pdfBtn.onclick=()=>pdfInput.click();
+ function dataURL(file){return new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(String(r.result));r.onerror=()=>no(new Error('Could not read file.'));r.readAsDataURL(file);});}
+ async function compress(file){
+  if(!file.type.startsWith('image/'))throw new Error('Please select an image.');
+  if(file.size>12*1024*1024)throw new Error('Choose an image smaller than 12 MB.');
+  const src=await dataURL(file),img=new Image();await new Promise((ok,no)=>{img.onload=ok;img.onerror=()=>no(new Error('Could not open this image.'));img.src=src;});
+  const scale=Math.min(1,1600/Math.max(img.width,img.height)),c=document.createElement('canvas');c.width=Math.round(img.width*scale);c.height=Math.round(img.height*scale);
+  const ctx=c.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,c.width,c.height);ctx.drawImage(img,0,0,c.width,c.height);
+  const out=c.toDataURL('image/jpeg',.82);if(out.length>2300000)throw new Error('Photo is too large after compression. Try another photo.');return out;
+ }
+ photoInput.onchange=async()=>{const f=photoInput.files&&photoInput.files[0];if(!f)return;photoBtn.disabled=true;show('Preparing photo…');try{pending={imageData:await compress(f),imageName:f.name,pdfText:'',pdfName:''};show('📷 Photo attached: '+f.name+'. Add a question or press Send.');}catch(e){show(e.message,true);}finally{photoBtn.disabled=false;photoInput.value='';}};
+ pdfInput.onchange=async()=>{const f=pdfInput.files&&pdfInput.files[0];if(!f)return;pdfBtn.disabled=true;show('Reading PDF…');try{
+  if(f.size>12*1024*1024)throw new Error('Choose a PDF smaller than 12 MB.');
+  if(!window.pdfjsLib)throw new Error('PDF reader is loading. Refresh and try again.');
+  pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  const doc=await pdfjsLib.getDocument({data:await f.arrayBuffer()}).promise;if(doc.numPages>20)throw new Error('PDF has more than 20 pages. Please upload up to 20 pages.');
+  const pages=[];for(let n=1;n<=doc.numPages;n++){const p=await doc.getPage(n),c=await p.getTextContent();pages.push('[Page '+n+'] '+c.items.map(x=>x.str||'').join(' '));}
+  const text=pages.join('\n').trim();if(!text)throw new Error('No selectable text found. This may be a scanned PDF; send page photos instead.');
+  if(text.length>28000)throw new Error('PDF text is too long. Please use a shorter PDF (up to 20 pages).');
+  pending={imageData:'',imageName:'',pdfText:text,pdfName:f.name};show('📄 PDF attached: '+f.name+' ('+doc.numPages+' pages). Add a question or press Send.');
+ }catch(e){show(e.message||'Could not read PDF.',true);}finally{pdfBtn.disabled=false;pdfInput.value='';}};
+ const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!SR){micBtn.disabled=true;micBtn.title='Voice dictation is not supported in this browser. Try Chrome.';}
+ else{
+  const rec=new SR();rec.continuous=false;rec.interimResults=true;
+  const langMap={english:'en-IN',hindi:'hi-IN',hinglish:'hi-IN',bengali:'bn-IN',telugu:'te-IN',marathi:'mr-IN',tamil:'ta-IN',urdu:'ur-IN',gujarati:'gu-IN',kannada:'kn-IN',odia:'or-IN',malayalam:'ml-IN',punjabi:'pa-IN',assamese:'as-IN',maithili:'hi-IN',nepali:'ne-NP'};
+  const setLang=()=>rec.lang=langMap[(localStorage.getItem('hbt_language')||'English').toLowerCase()]||'en-IN';
+  rec.onstart=()=>{micBtn.classList.add('recording');micBtn.textContent='⏹️';show('Listening… speak now.');};
+  rec.onresult=e=>{let t='';for(let i=e.resultIndex;i<e.results.length;i++)if(e.results[i].isFinal)t+=e.results[i][0].transcript;if(t){input.value=(input.value.trim()?input.value.trim()+' ':'')+t;input.focus();show('Voice added. Press Send when ready.');}};
+  rec.onerror=e=>show(e.error==='not-allowed'?'Allow microphone access in your browser.':'Voice input error: '+e.error,true);
+  rec.onend=()=>{micBtn.classList.remove('recording');micBtn.textContent='🎙️';};
+  micBtn.onclick=()=>{try{if(micBtn.classList.contains('recording'))rec.stop();else{setLang();rec.start();}}catch(e){show('Could not start microphone. Try again.',true);}};
+ }
+ const original=window.hbtSendMessage;
+ if(typeof original==='function'){
+  window.hbtSendMessage=async function(){
+   const hasFile=!!(pending.imageData||pending.pdfText);if(!input.value.trim()&&!hasFile)return;
+   if(hasFile&&!input.value.trim())input.value=pending.imageData?'Please solve or explain the question in this photo.':'Please summarise this PDF and explain its important points.';
+   const attached={...pending},nativeFetch=window.fetch;
+   window.fetch=function(url,opts){
+    if(String(url).includes('crimson-bush-abe0.sakshitiwari7598.workers.dev')&&opts&&typeof opts.body==='string'){
+     try{const body=JSON.parse(opts.body);if(attached.imageData)body.imageData=attached.imageData;if(attached.pdfText)body.message+='\n\nPDF content ('+attached.pdfName+'):\n'+attached.pdfText;opts={...opts,body:JSON.stringify(body)};}catch(e){}
+    }
+    return nativeFetch.call(this,url,opts);
+   };
+   try{await original();}finally{window.fetch=nativeFetch;pending={imageData:'',imageName:'',pdfText:'',pdfName:''};}
+  };
+ }
+})();
+</script></body></html>
 <style>
 /* Make selected theme colour visible on chat message bubbles */
 #hbt-chat-app .hbt-msg.user .hbt-bubble{
