@@ -209,6 +209,11 @@ async function supportTalk(){let f=$('feeling').value,t=$('feel-text').value.tri
    <button class="hbt-colour" data-theme="red" style="--swatch:#f87171"><span></span>Red</button>
    <button class="hbt-colour" data-theme="gold" style="--swatch:#facc15"><span></span>Gold</button>
   </div>
+  <label class="hbt-setting-label" for="hbt-custom-colour">🌈 Choose any colour (full shade palette)</label>
+  <div class="hbt-custom-picker">
+   <input type="color" id="hbt-custom-colour" value="#9b8cff" aria-label="Choose any theme colour">
+   <span id="hbt-custom-hex">#9B8CFF</span>
+  </div>
   <button class="hbt-settings-save" id="hbt-save-settings">Save settings</button>
  </section>
 </div>
@@ -219,20 +224,36 @@ async function supportTalk(){let f=$('feeling').value,t=$('feel-text').value.tri
  const themes={violet:['#9b8cff','#5de1dc'],blue:['#60a5fa','#38bdf8'],green:['#4ade80','#2dd4bf'],pink:['#f472b6','#c084fc'],orange:['#fb923c','#facc15'],cyan:['#22d3ee','#67e8f9'],red:['#f87171','#fb7185'],gold:['#facc15','#f59e0b']};
  const language=document.getElementById('hbt-language');
  let selectedTheme=localStorage.getItem('hbt_theme')||'violet';
+ const customPicker=document.getElementById('hbt-custom-colour');
+ const customHex=document.getElementById('hbt-custom-hex');
+ function applyCustomColour(hex){
+  root.style.setProperty('--hbt-accent',hex);
+  root.style.setProperty('--hbt-accent2','color-mix(in srgb,'+hex+' 55%, white)');
+  document.querySelectorAll('.hbt-colour').forEach(b=>b.classList.remove('selected'));
+  selectedTheme='custom';
+  customPicker.value=hex;customHex.textContent=hex.toUpperCase();
+ }
  function applyTheme(name){
+  if(name==='custom'){
+   applyCustomColour(localStorage.getItem('hbt_custom_colour')||'#9b8cff');
+   return;
+  }
   const pair=themes[name]||themes.violet;
   root.style.setProperty('--hbt-accent',pair[0]);root.style.setProperty('--hbt-accent2',pair[1]);
   document.querySelectorAll('.hbt-colour').forEach(b=>b.classList.toggle('selected',b.dataset.theme===name));
   selectedTheme=name;
+  customPicker.value=pair[0];customHex.textContent=pair[0].toUpperCase();
  }
  language.value=localStorage.getItem('hbt_language')||'English';
  applyTheme(selectedTheme);
+ customPicker.addEventListener('input',()=>applyCustomColour(customPicker.value));
  document.getElementById('hbt-open-settings').addEventListener('click',()=>overlay.classList.add('open'));
  document.getElementById('hbt-close-settings').addEventListener('click',()=>overlay.classList.remove('open'));
  overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.classList.remove('open')});
  document.getElementById('hbt-colours').addEventListener('click',e=>{const b=e.target.closest('[data-theme]');if(b)applyTheme(b.dataset.theme)});
  document.getElementById('hbt-save-settings').addEventListener('click',()=>{
   localStorage.setItem('hbt_theme',selectedTheme);
+  if(selectedTheme==='custom')localStorage.setItem('hbt_custom_colour',customPicker.value);
   localStorage.setItem('hbt_language',language.value);
   overlay.classList.remove('open');
   const btn=document.getElementById('hbt-save-settings');btn.textContent='Saved ✓';setTimeout(()=>btn.textContent='Save settings',1400);
@@ -276,4 +297,10 @@ async function supportTalk(){let f=$('feeling').value,t=$('feel-text').value.tri
 #hbt-chat-app .hbt-new{
   border-color:color-mix(in srgb,var(--hbt-accent) 35%,#35435d);
 }
+</style>
+
+<style>
+.hbt-custom-picker{display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid #35435d;background:#0b1220;border-radius:12px}
+.hbt-custom-picker input[type="color"]{width:58px;height:42px;border:0;padding:0;background:transparent;cursor:pointer}
+.hbt-custom-picker span{font-size:13px;color:#dce7fa;font-weight:700;letter-spacing:.5px}
 </style>
