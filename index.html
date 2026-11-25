@@ -137,30 +137,35 @@ async function supportTalk(){let f=$('feeling').value,t=$('feel-text').value.tri
 
 </script>
 <script>
-/* Independent safety-net for the chat send control */
+/* Independent chat sender with Friend Mode support */
 (function(){
  const input=document.getElementById('hbt-input');
  const button=document.getElementById('hbt-send');
  const feed=document.getElementById('hbt-feed');
  if(!input||!button||!feed)return;
- {
-  window.hbtSendMessage=async function(){
-   const q=input.value.trim(); if(!q||button.disabled)return;
-   const bubble=(text,who)=>{const row=document.createElement('div');row.className='hbt-msg '+who;const av=document.createElement('div');av.className='hbt-avatar';av.textContent=who==='user'?'You':'H';const b=document.createElement('div');b.className='hbt-bubble';b.textContent=text;row.append(av,b);feed.append(row);feed.scrollTop=feed.scrollHeight;return row};
-   const welcome=document.getElementById('hbt-welcome');if(welcome)welcome.remove();
-   bubble(q,'user');input.value='';button.disabled=true;button.textContent='…';
-   const waiting=bubble('HBT ANUJ is thinking…','assistant');
-   try{
-    const response=await fetch('https://crimson-bush-abe0.sakshitiwari7598.workers.dev',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:q,context:'Explain clearly in simple language.',mode:'tutor',history:[]})});
-    const data=await response.json().catch(()=>({}));
-    if(!response.ok)throw new Error(data.error||'Server error ('+response.status+')');
-    if(typeof data.answer!=='string'||!data.answer.trim())throw new Error('AI server returned an empty answer.');
-    waiting.querySelector('.hbt-bubble').textContent=data.answer;
-   }catch(error){waiting.querySelector('.hbt-bubble').textContent='Message could not be sent: '+(error.message||'Unknown error')+'. Please try again.'}
-   finally{button.disabled=false;button.textContent='↑';input.focus()}
-  };
- }
+ let friendMode=false;
+ window.hbtSendMessage=async function(){
+  const q=input.value.trim(); if(!q||button.disabled)return;
+  const lower=q.toLowerCase();
+  if(/\\b(exit friend mode|stop friend mode|tutor mode|study mode)\\b/.test(lower)){friendMode=false;}
+  else if(/^(hello|hi|hey|hlo|namaste)[!,.? ]*$/.test(lower)||/\\b(hello bhai|hlo bhai|hi bhai|friend mode|friend system)\\b/.test(lower)){friendMode=true;}
+  const bubble=(text,who)=>{const row=document.createElement('div');row.className='hbt-msg '+who;const av=document.createElement('div');av.className='hbt-avatar';av.textContent=who==='user'?'You':'H';const b=document.createElement('div');b.className='hbt-bubble';b.textContent=text;row.append(av,b);feed.append(row);feed.scrollTop=feed.scrollHeight;return row};
+  const welcome=document.getElementById('hbt-welcome');if(welcome)welcome.remove();
+  bubble(q,'user');input.value='';button.disabled=true;button.textContent='…';
+  const waiting=bubble('HBT ANUJ is thinking…','assistant');
+  try{
+   const context=friendMode?'FRIEND MODE: Be a casual friend, not a teacher. Reply in one short line, maximum 15 words, in the same language as the user. Do not mention school, studying, exams, homework or learning unless directly asked.':'Explain clearly in simple language.';
+   const mode=friendMode?'friend':'tutor';
+   const response=await fetch('https://crimson-bush-abe0.sakshitiwari7598.workers.dev',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:q,context,mode,history:[]})});
+   const data=await response.json().catch(()=>({}));
+   if(!response.ok)throw new Error(data.error||'Server error ('+response.status+')');
+   if(typeof data.answer!=='string'||!data.answer.trim())throw new Error('AI server returned an empty answer.');
+   let answer=data.answer.trim();
+   if(friendMode)answer=answer.replace(/\\s+/g,' ').split(/\\s+/).slice(0,15).join(' ');
+   waiting.querySelector('.hbt-bubble').textContent=answer;
+  }catch(error){waiting.querySelector('.hbt-bubble').textContent='Message could not be sent: '+(error.message||'Unknown error')+'. Please try again.'}
+  finally{button.disabled=false;button.textContent='↑';input.focus()}
+ };
  button.onclick=function(){window.hbtSendMessage()};
  input.onkeydown=function(event){if(event.key==='Enter'&&!event.isComposing){event.preventDefault();window.hbtSendMessage()}};
-})();
-</script><style>.app{display:none!important}</style></body></html>
+})();</script><style>.app{display:none!important}</style></body></html>
