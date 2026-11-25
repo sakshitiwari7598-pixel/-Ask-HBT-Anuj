@@ -59,10 +59,10 @@ export default {
       })) : [];
 
       if (!message) return json({ error: "Please enter a question." }, 400, headers);
-      if (message.length > 7000) return json({ error: "Please keep each request under 7,000 characters." }, 413, headers);
+      if (message.length > 30000) return json({ error: "Please keep each request under 7,000 characters." }, 413, headers);
 
       const imageData = typeof body.imageData === "string" ? body.imageData : "";
-      if (imageData && (!/^data:image\\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(imageData) || imageData.length > 2400000)) {
+      if (imageData && (!/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(imageData) || imageData.length > 2400000)) {
         return json({ error: "Invalid or oversized image. Please choose a smaller JPG, PNG, or WebP photo." }, 413, headers);
       }
       const prompt = (context ? "Student context: " + context + "\n\n" : "") +
