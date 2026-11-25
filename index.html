@@ -143,7 +143,7 @@ async function supportTalk(){let f=$('feeling').value,t=$('feel-text').value.tri
  const button=document.getElementById('hbt-send');
  const feed=document.getElementById('hbt-feed');
  if(!input||!button||!feed)return;
- if(typeof window.hbtSendMessage!=='function'){
+ {
   window.hbtSendMessage=async function(){
    const q=input.value.trim(); if(!q||button.disabled)return;
    const bubble=(text,who)=>{const row=document.createElement('div');row.className='hbt-msg '+who;const av=document.createElement('div');av.className='hbt-avatar';av.textContent=who==='user'?'You':'H';const b=document.createElement('div');b.className='hbt-bubble';b.textContent=text;row.append(av,b);feed.append(row);feed.scrollTop=feed.scrollHeight;return row};
