@@ -252,3 +252,28 @@ async function supportTalk(){let f=$('feeling').value,t=$('feel-text').value.tri
   border-color:color-mix(in srgb,var(--hbt-accent) 48%,#293750);
 }
 </style>
+
+<style>
+/* Extend the selected theme across the chat screen */
+#hbt-chat-app{
+  background:
+    radial-gradient(ellipse at 12% 0%,color-mix(in srgb,var(--hbt-accent) 22%,transparent),transparent 43%),
+    radial-gradient(ellipse at 92% 100%,color-mix(in srgb,var(--hbt-accent2) 13%,transparent),transparent 42%),
+    #090d18;
+}
+#hbt-chat-app .hbt-side{
+  background:color-mix(in srgb,var(--hbt-accent) 7%,#0b1120);
+  border-right-color:color-mix(in srgb,var(--hbt-accent) 30%,#253149);
+}
+#hbt-chat-app .hbt-top{
+  background:color-mix(in srgb,var(--hbt-accent) 6%,#090d18);
+  border-bottom-color:color-mix(in srgb,var(--hbt-accent) 30%,#253149);
+}
+#hbt-chat-app .hbt-compose{
+  border-color:color-mix(in srgb,var(--hbt-accent) 42%,#3a4964);
+  background:color-mix(in srgb,var(--hbt-accent) 7%,#111827);
+}
+#hbt-chat-app .hbt-new{
+  border-color:color-mix(in srgb,var(--hbt-accent) 35%,#35435d);
+}
+</style>
