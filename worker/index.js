@@ -46,7 +46,7 @@ export default {
 
     try {
       const contentLength = Number(request.headers.get("Content-Length") || 0);
-      if (contentLength > 24000) return json({ error: "Your request is too large. Please shorten it and try again." }, 413, headers);
+      if (contentLength > 2600000) return json({ error: "Your request is too large. Please shorten it and try again." }, 413, headers);
       const body = await request.json();
       if (!body || typeof body !== "object" || Array.isArray(body)) return json({ error: "Invalid request format." }, 400, headers);
       if (typeof body.message !== "string") return json({ error: "Please enter a question." }, 400, headers);
@@ -61,14 +61,24 @@ export default {
       if (!message) return json({ error: "Please enter a question." }, 400, headers);
       if (message.length > 7000) return json({ error: "Please keep each request under 7,000 characters." }, 413, headers);
 
+      const imageData = typeof body.imageData === "string" ? body.imageData : "";
+      if (imageData && (!/^data:image\\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(imageData) || imageData.length > 2400000)) {
+        return json({ error: "Invalid or oversized image. Please choose a smaller JPG, PNG, or WebP photo." }, 413, headers);
+      }
       const prompt = (context ? "Student context: " + context + "\n\n" : "") +
         "Task mode: " + mode + "\n\n" + message;
+      const userContent = imageData
+        ? [
+            { type: "image_url", image_url: { url: imageData, detail: "high" } },
+            { type: "text", text: prompt + "\n\nPlease inspect the attached image carefully. Read visible text and solve or explain the student's question. If any part is unclear, say so rather than guessing." }
+          ]
+        : prompt;
 
       const result = await env.AI.run(MODEL, {
         messages: [
           { role: "system", content: INSTRUCTIONS },
           ...history,
-          { role: "user", content: prompt }
+          { role: "user", content: userContent }
         ],
         max_tokens: 1600,
         chat_template_kwargs: { enable_thinking: false }
