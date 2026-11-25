@@ -53,7 +53,7 @@
   <div class="hbt-privacy">Your learning companion · Learn • Grow • Shine</div>
  </aside>
  <main class="hbt-main">
-  <header class="hbt-top"><div style="display:flex;align-items:center;gap:10px"><button class="hbt-menu" id="hbt-menu" aria-label="Open chat history">☰</button><strong>HBT ANUJ</strong></div><div class="hbt-top-actions"><span>AI learning companion</span><a class="hbt-download" href="https://github.com/sakshitiwari7598-pixel/-Ask-HBT-Anuj/releases/download/v1.0.0/app-debug.apk">↓ Download APK</a></div></header>
+  <header class="hbt-top"><div style="display:flex;align-items:center;gap:10px"><button class="hbt-menu" id="hbt-menu" aria-label="Open chat history">☰</button><strong>HBT ANUJ</strong></div><div class="hbt-top-actions"><button type="button" class="hbt-settings-btn" id="hbt-open-settings" aria-label="Open settings">⚙️ Settings</button><span>AI learning companion</span><a class="hbt-download" href="https://github.com/sakshitiwari7598-pixel/-Ask-HBT-Anuj/releases/download/v1.0.0/app-debug.apk">↓ Download APK</a></div></header>
   <div class="hbt-feed" id="hbt-feed">
    <div class="hbt-welcome" id="hbt-welcome"><h1>What can I help you with?</h1><p>Ask a question, create notes, practise for exams, or talk through a topic — all in one chat.</p>
     <div class="hbt-suggestions">
@@ -154,7 +154,8 @@ async function supportTalk(){let f=$('feeling').value,t=$('feel-text').value.tri
   bubble(q,'user');input.value='';button.disabled=true;button.textContent='…';
   const waiting=bubble('HBT ANUJ is thinking…','assistant');
   try{
-   const context=friendMode?'FRIEND MODE: Be a casual friend, not a teacher. Reply in one short line, maximum 15 words, in the same language as the user. Do not mention school, studying, exams, homework or learning unless directly asked.':'Explain clearly in simple language.';
+   const chosenLanguage=localStorage.getItem('hbt_language')||'English';
+   const context=friendMode?'FRIEND MODE: Be a casual friend, not a teacher. Reply in one short line, maximum 15 words. Reply in '+chosenLanguage+'. Do not mention school, studying, exams, homework or learning unless directly asked.':'Explain clearly in simple language. Reply in '+chosenLanguage+'.';
    const mode=friendMode?'friend':'tutor';
    const response=await fetch('https://crimson-bush-abe0.sakshitiwari7598.workers.dev',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:q,context,mode,history:[]})});
    const data=await response.json().catch(()=>({}));
@@ -168,4 +169,75 @@ async function supportTalk(){let f=$('feeling').value,t=$('feel-text').value.tri
  };
  button.onclick=function(){window.hbtSendMessage()};
  input.onkeydown=function(event){if(event.key==='Enter'&&!event.isComposing){event.preventDefault();window.hbtSendMessage()}};
-})();</script><style>.app{display:none!important}</style></body></html>
+})();</script><style>.app{display:none!important}</style>
+<style>
+.hbt-settings-btn{border:1px solid #465779;background:#172237;color:#eef3ff;padding:8px 11px;border-radius:10px;font-size:12px;cursor:pointer;white-space:nowrap}
+.hbt-settings-overlay{position:fixed;inset:0;z-index:100;background:#000a;display:none;align-items:center;justify-content:center;padding:18px}
+.hbt-settings-overlay.open{display:flex}
+.hbt-settings-panel{width:min(430px,100%);max-height:85vh;overflow:auto;background:#111827;border:1px solid #35435d;border-radius:18px;padding:20px;box-shadow:0 24px 80px #0009}
+.hbt-settings-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.hbt-settings-head h2{margin:0;font-size:19px}
+.hbt-settings-close{border:0;background:#26334a;color:white;border-radius:9px;width:34px;height:34px;font-size:20px;cursor:pointer}
+.hbt-setting-label{display:block;color:#c7d2e5;font-size:13px;margin:16px 0 8px}
+.hbt-language-select{width:100%;background:#0b1220;color:#eef3ff;border:1px solid #35435d;border-radius:10px;padding:12px}
+.hbt-colours{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
+.hbt-colour{border:2px solid transparent;border-radius:11px;padding:8px 4px;background:#1b2639;color:white;font-size:11px;cursor:pointer}
+.hbt-colour span{display:block;width:24px;height:24px;border-radius:50%;margin:0 auto 5px;background:var(--swatch)}
+.hbt-colour.selected{border-color:white}
+.hbt-settings-save{width:100%;margin-top:18px;border:0;border-radius:11px;padding:12px;background:linear-gradient(135deg,var(--hbt-accent,#9b8cff),var(--hbt-accent2,#5de1dc));color:#101426;font-weight:800;cursor:pointer}
+#hbt-chat-app{--hbt-accent:#9b8cff;--hbt-accent2:#5de1dc}
+#hbt-chat-app .hbt-brandmark,#hbt-chat-app .hbt-send,#hbt-chat-app .hbt-download{background:linear-gradient(135deg,var(--hbt-accent),var(--hbt-accent2))}
+#hbt-chat-app .hbt-suggestions button:hover{border-color:var(--hbt-accent)}
+#hbt-chat-app .hbt-new:focus,#hbt-chat-app .hbt-settings-btn:focus{outline:2px solid var(--hbt-accent)}
+@media(max-width:760px){.hbt-top-actions{gap:7px}.hbt-top-actions>span{display:none}.hbt-settings-btn{padding:7px 8px;font-size:11px}}
+</style>
+<div class="hbt-settings-overlay" id="hbt-settings-overlay" role="dialog" aria-modal="true" aria-labelledby="hbt-settings-title">
+ <section class="hbt-settings-panel">
+  <div class="hbt-settings-head"><h2 id="hbt-settings-title">⚙️ Settings</h2><button class="hbt-settings-close" id="hbt-close-settings" aria-label="Close settings">×</button></div>
+  <label class="hbt-setting-label" for="hbt-language">🌐 Response language</label>
+  <select class="hbt-language-select" id="hbt-language">
+   <option>English</option><option>Hindi</option><option>Bengali</option><option>Telugu</option><option>Marathi</option><option>Tamil</option><option>Urdu</option><option>Gujarati</option><option>Kannada</option><option>Odia</option><option>Malayalam</option><option>Punjabi</option><option>Assamese</option><option>Maithili</option><option>Sanskrit</option><option>Nepali</option><option>Arabic</option><option>Spanish</option><option>French</option><option>Portuguese</option>
+  </select>
+  <span class="hbt-setting-label">🎨 Theme colour</span>
+  <div class="hbt-colours" id="hbt-colours">
+   <button class="hbt-colour" data-theme="violet" style="--swatch:#9b8cff"><span></span>Violet</button>
+   <button class="hbt-colour" data-theme="blue" style="--swatch:#60a5fa"><span></span>Blue</button>
+   <button class="hbt-colour" data-theme="green" style="--swatch:#4ade80"><span></span>Green</button>
+   <button class="hbt-colour" data-theme="pink" style="--swatch:#f472b6"><span></span>Pink</button>
+   <button class="hbt-colour" data-theme="orange" style="--swatch:#fb923c"><span></span>Orange</button>
+   <button class="hbt-colour" data-theme="cyan" style="--swatch:#22d3ee"><span></span>Cyan</button>
+   <button class="hbt-colour" data-theme="red" style="--swatch:#f87171"><span></span>Red</button>
+   <button class="hbt-colour" data-theme="gold" style="--swatch:#facc15"><span></span>Gold</button>
+  </div>
+  <button class="hbt-settings-save" id="hbt-save-settings">Save settings</button>
+ </section>
+</div>
+<script>
+(function(){
+ const root=document.getElementById('hbt-chat-app');
+ const overlay=document.getElementById('hbt-settings-overlay');
+ const themes={violet:['#9b8cff','#5de1dc'],blue:['#60a5fa','#38bdf8'],green:['#4ade80','#2dd4bf'],pink:['#f472b6','#c084fc'],orange:['#fb923c','#facc15'],cyan:['#22d3ee','#67e8f9'],red:['#f87171','#fb7185'],gold:['#facc15','#f59e0b']};
+ const language=document.getElementById('hbt-language');
+ let selectedTheme=localStorage.getItem('hbt_theme')||'violet';
+ function applyTheme(name){
+  const pair=themes[name]||themes.violet;
+  root.style.setProperty('--hbt-accent',pair[0]);root.style.setProperty('--hbt-accent2',pair[1]);
+  document.querySelectorAll('.hbt-colour').forEach(b=>b.classList.toggle('selected',b.dataset.theme===name));
+  selectedTheme=name;
+ }
+ language.value=localStorage.getItem('hbt_language')||'English';
+ applyTheme(selectedTheme);
+ document.getElementById('hbt-open-settings').addEventListener('click',()=>overlay.classList.add('open'));
+ document.getElementById('hbt-close-settings').addEventListener('click',()=>overlay.classList.remove('open'));
+ overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.classList.remove('open')});
+ document.getElementById('hbt-colours').addEventListener('click',e=>{const b=e.target.closest('[data-theme]');if(b)applyTheme(b.dataset.theme)});
+ document.getElementById('hbt-save-settings').addEventListener('click',()=>{
+  localStorage.setItem('hbt_theme',selectedTheme);
+  localStorage.setItem('hbt_language',language.value);
+  overlay.classList.remove('open');
+  const btn=document.getElementById('hbt-save-settings');btn.textContent='Saved ✓';setTimeout(()=>btn.textContent='Save settings',1400);
+ });
+})();
+</script>
+
+</body></html>
