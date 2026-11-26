@@ -54,7 +54,7 @@ function cleanPlainText(value) {
     .replace(/\\pi\\b/g, "π")
     .replace(/\\leq?\\b/g, "≤")
     .replace(/\\geq?\\b/g, "≥")
-    .replace(/\\neq\\b/g, "≠")
+    .replace(/\neq\\b/g, "≠")
     .replace(/\\infty\\b/g, "∞")
     .replace(/\\(left|right|quad|qquad)\\b/g, "")
     .replace(/[{}]/g, "")
@@ -62,7 +62,7 @@ function cleanPlainText(value) {
     .replace(/\\\\([()[\\]])/g, "$1")
     .replace(/\\\\\\*/g, "")
     .replace(/\\*\\*/g, "")
-    .replace(/\\*([^*\\n]+)\\*/g, "$1")
+    .replace(/\\*([^*\n]+)\\*/g, "$1")
     .replace(/[ \\t]+/g, " ")
     .trim();
 }
@@ -125,9 +125,9 @@ export default {
       if (imageData && (!/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(imageData) || imageData.length > 2400000)) {
         return json({ error: "Invalid or oversized image. Please choose a smaller JPG, PNG, or WebP photo." }, 413, headers);
       }
-      const prompt = (savedMemory ? "LONG-TERM USER MEMORY (use when relevant; do not repeat unless useful):\\n" + savedMemory + "\\n\\n" : "") +
-        (context ? "Student context: " + context + "\\n\\n" : "") +
-        "Task mode: " + mode + "\\n\\n" + message;
+      const prompt = (savedMemory ? "LONG-TERM USER MEMORY (use when relevant; do not repeat unless useful):\n" + savedMemory + "\n\n" : "") +
+        (context ? "Student context: " + context + "\n\n" : "") +
+        "Task mode: " + mode + "\n\n" + message;
       const userContent = imageData
         ? [
             { type: "image_url", image_url: { url: imageData, detail: "high" } },
@@ -155,7 +155,7 @@ export default {
       let memorySaved = false;
       if (userId && env.HBT_MEMORY) {
         try {
-          const memoryPrompt = "Update a concise long-term memory for this student. Keep only useful durable facts: preferred language/answer style, education level, subjects/goals, ongoing projects, stable preferences, and explicit facts the user wants remembered. Do NOT store passwords, authentication codes, financial identifiers, highly sensitive personal data, or temporary one-off details. Merge with existing memory, prefer newest explicit user statements, avoid duplicates. If nothing useful is new, preserve the existing memory. Return only updated memory as plain text, maximum 6000 characters.\\n\\nEXISTING MEMORY:\\n" + (savedMemory || "(empty)") + "\\n\\nLATEST USER MESSAGE:\\n" + message.slice(0, 5000) + "\\n\\nASSISTANT ANSWER:\\n" + String(answer).slice(0, 5000);
+          const memoryPrompt = "Update a concise long-term memory for this student. Keep only useful durable facts: preferred language/answer style, education level, subjects/goals, ongoing projects, stable preferences, and explicit facts the user wants remembered. Do NOT store passwords, authentication codes, financial identifiers, highly sensitive personal data, or temporary one-off details. Merge with existing memory, prefer newest explicit user statements, avoid duplicates. If nothing useful is new, preserve the existing memory. Return only updated memory as plain text, maximum 6000 characters.\n\nEXISTING MEMORY:\n" + (savedMemory || "(empty)") + "\n\nLATEST USER MESSAGE:\n" + message.slice(0, 5000) + "\n\nASSISTANT ANSWER:\n" + String(answer).slice(0, 5000);
           const memResult = await env.AI.run(MODEL, {
             messages: [
               { role: "system", content: "You maintain privacy-conscious long-term memory for a personal learning assistant. Extract only durable, useful, non-sensitive facts. Never infer facts." },
