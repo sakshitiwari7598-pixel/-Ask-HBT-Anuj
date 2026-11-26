@@ -106,7 +106,7 @@ export default {
       const message = body.message.trim();
       const context = typeof body.context === "string" ? body.context.slice(0, 1200) : "";
       const mode = typeof body.mode === "string" ? body.mode.slice(0, 30) : "tutor";
-      const history = Array.isArray(body.history) ? body.history.slice(-8).filter(item => item && (item.role === "user" || item.role === "assistant") && typeof item.content === "string").map(item => ({
+      const history = Array.isArray(body.history) ? body.history.slice(-16).filter(item => item && (item.role === "user" || item.role === "assistant") && typeof item.content === "string").map(item => ({
         role: item.role,
         content: item.content.slice(0, 1200)
       })) : [];
