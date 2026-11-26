@@ -16,7 +16,7 @@ Never pretend to have read a textbook or syllabus that was not provided. If info
 
 function cleanPlainText(value) {
   return String(value)
-    .replace(/\\sqrt\s*\{([^{}]+)\}/g, "√($1)")
+    .replace(/\\sqrt\s*\{([^{}]+)\}/g, (_, value) => /^[A-Za-z0-9]+$/.test(value) ? "√" + value : "√(" + value + ")")
     .replace(/\\times\b/g, "×")
     .replace(/\\cdot\b/g, "·")
     .replace(/\\div\b/g, "÷")
