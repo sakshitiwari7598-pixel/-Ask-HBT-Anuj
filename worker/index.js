@@ -6,7 +6,7 @@ LANGUAGE RULE: Reply in the same language and style the user uses in their lates
 FRIEND MODE: Activate FRIEND MODE when the user greets you with any casual spelling or variation of "hello bhai" (including "hlo bhai", "helo bhai", "hi bhai", "hey bhai", "hello bro"), or asks you to talk like a friend. Keep FRIEND MODE active for the conversation until the user clearly asks to turn it off or switch to formal/normal mode. In FRIEND MODE, keep every ordinary reply SHORT: normally one sentence, maximum 2 short sentences, ideally under 25 words total. Do not add explanations, lists, study tips, repeated reassurance, or follow-up questions unless the user asks. Match the user's latest language (Hindi, English, or Hinglish). Be natural, warm and casual. Only give a long/detailed answer when the user explicitly asks for detail, notes, steps, or an exam answer. If the user asks to turn Friend Mode off, acknowledge briefly and stop using this short friend style.
 If the user simply greets you, greet them naturally and invite them to chat; do not launch into a lesson or a list of features.
 Explain concepts accurately in simple language, adapting to the class and topic provided.
-PLAIN TEXT FORMATTING: The chat displays your answer as plain text, not rendered Markdown or LaTeX. NEVER use dollar signs for maths, including $...$, $...$, \\( ... \\), or \\[ ... \\]. NEVER use Markdown bold markers ** or italic markers *. Write maths in clean, readable plain text. Use Unicode symbols where helpful: √37 (not \\sqrt{37}), ×, ÷, ≤, ≥, π, and superscript digits where practical (x², x³). For fractions, write (a)/(b). Do not wrap formulas or words in Markdown symbols.
+STRICT PLAIN TEXT ONLY: The chat displays answers as plain text. Do not use ANY special mathematical symbols, Unicode math symbols, LaTeX, or Markdown formatting. Do not use symbols such as plus, minus, multiply, divide, equals, square root, pi, infinity, arrows, inequality signs, superscripts, subscripts, or fraction bars. Write every mathematical operation using ordinary English words: write "plus", "minus", "multiplied by", "divided by", "is equal to", "square root of", "is greater than", and "is less than". Write powers as "x raised to power 2". Write fractions as "numerator divided by denominator". Avoid asterisk, hash, dollar, backslash, and decorative bullet characters. Use simple numbered labels like "Question 1" and short plain-text paragraphs. Ordinary sentence punctuation is allowed. Never output Markdown headings, bold, italics, tables, or code fences.
 ACADEMIC SOLVE-ALL RULES:
 When the student says "solve all", "answer all", "do all questions", or similar:
 - Solve EVERY question and every subpart that is actually visible or included in the student's message, in the original order. Do not solve only a sample or stop after a few questions.
@@ -29,22 +29,19 @@ Never pretend to have read a textbook or syllabus that was not provided. If info
 
 function cleanPlainText(value) {
   return String(value)
-    .replace(/\\xrightarrow\s*\{([^{}]*)\}/g, " --($1)→ ")
-    .replace(/\\rightarrow\b|\\to\b/g, "→")
-    .replace(/\\leftarrow\b/g, "←")
+    .replace(/\\xrightarrow\s*\{([^{}]*)\}/g, " then $1 ")
+    .replace(/\\rightarrow\b|\\to\b/g, " then ")
+    .replace(/\\leftarrow\b/g, " from ")
     .replace(/\\text\s*\{([^{}]*)\}/g, "$1")
     .replace(/\\mathrm\s*\{([^{}]*)\}/g, "$1")
-    .replace(/\\sqrt\s*\{([^{}]+)\}/g, (_, v) =>
-      /^[A-Za-z0-9]+$/.test(v) ? "√" + v : "√(" + v + ")"
-    )
-    .replace(/\\frac\s*\{([^{}]+)\}\s*\{([^{}]+)\}/g, "($1)/($2)")
-    .replace(/\\times\b/g, "×")
-    .replace(/\\cdot\b/g, "·")
-    .replace(/\\div\b/g, "÷")
-    .replace(/\\pi\b/g, "π")
-    .replace(/\\leq?\b/g, "≤")
-    .replace(/\\geq?\b/g, "≥")
-    .replace(/\\neq\b/g, "≠")
+    .replace(/\\sqrt\s*\{([^{}]+)\}/g, "square root of $1")
+    .replace(/\\frac\s*\{([^{}]+)\}\s*\{([^{}]+)\}/g, "$1 divided by $2")
+    .replace(/\\times\b|\\cdot\b/g, " multiplied by ")
+    .replace(/\\div\b/g, " divided by ")
+    .replace(/\\pi\b/g, "pi")
+    .replace(/\\leq?\b/g, " is less than or equal to ")
+    .replace(/\\geq?\b/g, " is greater than or equal to ")
+    .replace(/\\neq\b/g, " is not equal to ")
     .replace(/\\(left|right|quad|qquad)\b/g, "")
     .replace(/[{}]/g, "")
     .replace(/\$\$?/g, "")
@@ -52,6 +49,18 @@ function cleanPlainText(value) {
     .replace(/\\\*/g, "")
     .replace(/\*\*/g, "")
     .replace(/\*([^*\n]+)\*/g, "$1")
+    .replace(/[×·]/g, " multiplied by ")
+    .replace(/[÷]/g, " divided by ")
+    .replace(/[√]/g, "square root of ")
+    .replace(/[≤]/g, " is less than or equal to ")
+    .replace(/[≥]/g, " is greater than or equal to ")
+    .replace(/[≠]/g, " is not equal to ")
+    .replace(/[→]/g, " then ")
+    .replace(/[←]/g, " from ")
+    .replace(/[π]/g, "pi")
+    .replace(/[²]/g, " squared")
+    .replace(/[³]/g, " cubed")
+    .replace(/[⁰¹⁴⁵⁶⁷⁸⁹]/g, " ")
     .replace(/[ \t]+/g, " ")
     .trim();
 }
