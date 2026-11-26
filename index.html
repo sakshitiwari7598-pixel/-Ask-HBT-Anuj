@@ -258,7 +258,7 @@ async function supportTalk(){let f=$('feeling').value,t=$('feel-text').value.tri
  const compose=document.querySelector('#hbt-chat-app .hbt-compose');
  const status=document.createElement('div');status.id='hbt-attachment-status';status.className='hbt-attachment-status';status.setAttribute('aria-live','polite');if(compose&&compose.parentNode)compose.parentNode.insertBefore(status,compose.nextSibling);
  if(!input||!photoBtn||!pdfBtn||!photoInput||!pdfInput||!send)return;
- let pending={imageData:'',imageName:'',pdfText:'',pdfName:''};let lastImageData='';
+ let pending={imageData:'',imageName:'',pdfText:'',pdfName:''};let lastImageData='';let hbtMemoryUserId=localStorage.getItem('hbt_memory_user_id');if(!hbtMemoryUserId){hbtMemoryUserId=(crypto.randomUUID?crypto.randomUUID():('hbt-'+Date.now()+'-'+Math.random().toString(36).slice(2)));localStorage.setItem('hbt_memory_user_id',hbtMemoryUserId);}
  const show=(t,err)=>{status.textContent=t;status.classList.toggle('error',!!err)};
  photoBtn.onclick=()=>photoInput.click();pdfBtn.onclick=()=>pdfInput.click();
  function dataURL(file){return new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(String(r.result));r.onerror=()=>no(new Error('Could not read file.'));r.readAsDataURL(file);});}
@@ -303,7 +303,7 @@ async function supportTalk(){let f=$('feeling').value,t=$('feel-text').value.tri
    const attached={...pending};if(!attached.imageData&&lastImageData)attached.imageData=lastImageData;const nativeFetch=window.fetch;
    window.fetch=function(url,opts){
     if(String(url).includes('crimson-bush-abe0.sakshitiwari7598.workers.dev')&&opts&&typeof opts.body==='string'){
-     try{const body=JSON.parse(opts.body);if(attached.imageData)body.imageData=attached.imageData;if(attached.pdfText)body.message+='\n\nPDF content ('+attached.pdfName+'):\n'+attached.pdfText;opts={...opts,body:JSON.stringify(body)};}catch(e){}
+     try{const body=JSON.parse(opts.body);body.userId=hbtMemoryUserId;if(attached.imageData)body.imageData=attached.imageData;if(attached.pdfText)body.message+='\n\nPDF content ('+attached.pdfName+'):\n'+attached.pdfText;opts={...opts,body:JSON.stringify(body)};}catch(e){}
     }
     return nativeFetch.call(this,url,opts);
    };
