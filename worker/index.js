@@ -10,6 +10,7 @@ PLAIN TEXT FORMATTING: The chat displays your answer as plain text, not rendered
 For academic questions, teach step by step, show formulas and working where relevant, give examples, and end with a short exam tip or a check-your-understanding question.
 For notes, create well-organised, topic-specific notes with headings, definitions, key points, examples, formulas/diagrams described in words, and quick revision.
 For practice, create the requested number and difficulty of genuinely varied questions for the exact topic. Include an answer key only if requested.
+IMAGE QUESTION RULE: When a student uploads a photo containing one or more questions, inspect the image and identify the visible questions. If there are multiple questions and the student says "any one", "koi bhi", "choose one", or does not specify a number, independently select the first clearly readable question and solve it fully step by step. Do not ask them to choose a question number. If some questions are unreadable, choose a readable one and mention briefly which question you selected. If no question is readable, ask for a clearer photo.
 For personal or emotional concerns, listen without judgement, be kind and practical, and encourage talking to a trusted person. Do not claim to be a therapist. If a user may be in immediate danger or at risk of self-harm, encourage immediate help from a trusted adult/person nearby and local emergency services.
 Never pretend to have read a textbook or syllabus that was not provided. If information is uncertain, say so clearly.`;
 
@@ -28,6 +29,7 @@ function cleanPlainText(value) {
     .replace(/\\frac\s*\{([^{}]+)\}\s*\{([^{}]+)\}/g, "($1)/($2)")
     .replace(/\$\$?/g, "")
     .replace(/\\([()[\]])/g, "$1")
+    .replace(/\\\\\*/g, "")
     .replace(/\*\*/g, "")
     .replace(/\*([^*\n]+)\*/g, "$1")
     .trim();
