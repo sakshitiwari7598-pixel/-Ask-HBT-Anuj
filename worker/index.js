@@ -17,7 +17,15 @@ Never pretend to have read a textbook or syllabus that was not provided. If info
 
 function cleanPlainText(value) {
   return String(value)
-    .replace(/\\sqrt\s*\{([^{}]+)\}/g, (_, value) => /^[A-Za-z0-9]+$/.test(value) ? "√" + value : "√(" + value + ")")
+    .replace(/\\xrightarrow\s*\{([^{}]*)\}/g, " --($1)→ ")
+    .replace(/\\rightarrow\b|\\to\b/g, "→")
+    .replace(/\\leftarrow\b/g, "←")
+    .replace(/\\text\s*\{([^{}]*)\}/g, "$1")
+    .replace(/\\mathrm\s*\{([^{}]*)\}/g, "$1")
+    .replace(/\\sqrt\s*\{([^{}]+)\}/g, (_, v) =>
+      /^[A-Za-z0-9]+$/.test(v) ? "√" + v : "√(" + v + ")"
+    )
+    .replace(/\\frac\s*\{([^{}]+)\}\s*\{([^{}]+)\}/g, "($1)/($2)")
     .replace(/\\times\b/g, "×")
     .replace(/\\cdot\b/g, "·")
     .replace(/\\div\b/g, "÷")
@@ -25,13 +33,14 @@ function cleanPlainText(value) {
     .replace(/\\leq?\b/g, "≤")
     .replace(/\\geq?\b/g, "≥")
     .replace(/\\neq\b/g, "≠")
-    .replace(/\\(left|right)\b/g, "")
-    .replace(/\\frac\s*\{([^{}]+)\}\s*\{([^{}]+)\}/g, "($1)/($2)")
+    .replace(/\\(left|right|quad|qquad)\b/g, "")
+    .replace(/[{}]/g, "")
     .replace(/\$\$?/g, "")
     .replace(/\\([()[\]])/g, "$1")
-    .replace(/\\\\\*/g, "")
+    .replace(/\\\*/g, "")
     .replace(/\*\*/g, "")
     .replace(/\*([^*\n]+)\*/g, "$1")
+    .replace(/[ \t]+/g, " ")
     .trim();
 }
 
