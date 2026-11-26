@@ -116,12 +116,18 @@ export default {
       if (!message) return json({ error: "Please enter a question." }, 400, headers);
       if (message.length > 35000) return json({ error: "Please keep each request under 7,000 characters." }, 413, headers);
 
+      const userId = typeof body.userId === "string" && /^[A-Za-z0-9_-]{8,100}$/.test(body.userId) ? body.userId : "";
+      let savedMemory = "";
+      if (userId && env.HBT_MEMORY) {
+        try { savedMemory = (await env.HBT_MEMORY.get("memory:" + userId)) || ""; } catch (_) {}
+      }
       const imageData = typeof body.imageData === "string" ? body.imageData : "";
       if (imageData && (!/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(imageData) || imageData.length > 2400000)) {
         return json({ error: "Invalid or oversized image. Please choose a smaller JPG, PNG, or WebP photo." }, 413, headers);
       }
-      const prompt = (context ? "Student context: " + context + "\n\n" : "") +
-        "Task mode: " + mode + "\n\n" + message;
+      const prompt = (savedMemory ? "LONG-TERM USER MEMORY (use when relevant; do not repeat unless useful):\\n" + savedMemory + "\\n\\n" : "") +
+        (context ? "Student context: " + context + "\\n\\n" : "") +
+        "Task mode: " + mode + "\\n\\n" + message;
       const userContent = imageData
         ? [
             { type: "image_url", image_url: { url: imageData, detail: "high" } },
@@ -145,7 +151,27 @@ export default {
         "";
 
       if (!answer) return json({ error: "The AI returned an empty answer. Please try again." }, 502, headers);
-      return json({ answer: cleanPlainText(answer) }, 200, headers);
+
+      let memorySaved = false;
+      if (userId && env.HBT_MEMORY) {
+        try {
+          const memoryPrompt = "Update a concise long-term memory for this student. Keep only useful durable facts: preferred language/answer style, education level, subjects/goals, ongoing projects, stable preferences, and explicit facts the user wants remembered. Do NOT store passwords, authentication codes, financial identifiers, highly sensitive personal data, or temporary one-off details. Merge with existing memory, prefer newest explicit user statements, avoid duplicates. If nothing useful is new, preserve the existing memory. Return only updated memory as plain text, maximum 6000 characters.\\n\\nEXISTING MEMORY:\\n" + (savedMemory || "(empty)") + "\\n\\nLATEST USER MESSAGE:\\n" + message.slice(0, 5000) + "\\n\\nASSISTANT ANSWER:\\n" + String(answer).slice(0, 5000);
+          const memResult = await env.AI.run(MODEL, {
+            messages: [
+              { role: "system", content: "You maintain privacy-conscious long-term memory for a personal learning assistant. Extract only durable, useful, non-sensitive facts. Never infer facts." },
+              { role: "user", content: memoryPrompt }
+            ],
+            max_tokens: 1800,
+            chat_template_kwargs: { enable_thinking: false }
+          }, { rejectIfBusy: true });
+          const updatedMemory = String(memResult?.response || memResult?.choices?.[0]?.message?.content || memResult?.result?.response || "").trim().slice(0, 6000);
+          if (updatedMemory) {
+            await env.HBT_MEMORY.put("memory:" + userId, updatedMemory);
+            memorySaved = true;
+          }
+        } catch (_) {}
+      }
+      return json({ answer: cleanPlainText(answer), memorySaved, memoryEnabled: !!(userId && env.HBT_MEMORY) }, 200, headers);
     } catch (error) {
       const message = String(error?.message || "");
       const safeMessage = /limit|quota|capacity|neurons|billing|busy/i.test(message)
