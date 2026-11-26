@@ -11,7 +11,7 @@
 #hbt-chat-app button,#hbt-chat-app textarea{font:inherit}
 .hbt-side{min-height:0;overflow-y:auto;background:#0b1120;border-right:1px solid #253149;padding:16px;display:flex;flex-direction:column;gap:14px;min-width:0}
 .hbt-brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:18px;padding:5px}
-.hbt-brandmark{width:36px;height:36px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,#a18aff,#5de1dc);color:#101426}
+.hbt-brandmark{width:36px;height:36px;border-radius:10px;object-fit:cover;display:block;box-shadow:0 0 18px #20d9ef33}
 .hbt-new{border:1px solid #35435d;background:#141d2e;color:#eef3ff;border-radius:12px;padding:11px;text-align:left;cursor:pointer}
 .hbt-side-label{color:#71809a;font-size:11px;letter-spacing:1px;margin:7px 4px 0}
 .hbt-history{overflow:auto;display:grid;gap:5px}
@@ -46,14 +46,14 @@
 <body>
 <div id="hbt-chat-app">
  <aside class="hbt-side" id="hbt-side">
-  <div class="hbt-brand"><span class="hbt-brandmark">✦</span><span>HBT ANUJ</span></div>
+  <div class="hbt-brand"><img class="hbt-brandmark" src="./hbt-anuj-logo.svg" alt="HBT ANUJ logo"><span>HBT ANUJ</span></div>
   <button class="hbt-new" id="hbt-new-chat">＋ &nbsp; New chat</button>
   <div class="hbt-side-label">RECENT CHATS</div>
   <div class="hbt-history" id="hbt-history-list"></div>
   <div class="hbt-privacy">Your learning companion · Learn • Grow • Shine</div>
  </aside>
  <main class="hbt-main">
-  <header class="hbt-top"><div style="display:flex;align-items:center;gap:10px"><button class="hbt-menu" id="hbt-menu" aria-label="Open chat history">☰</button><strong>HBT ANUJ</strong></div><div class="hbt-top-actions"><button type="button" class="hbt-settings-btn" id="hbt-open-settings" aria-label="Open settings">⚙️ Settings</button><span>AI learning companion</span><a class="hbt-download" href="https://github.com/sakshitiwari7598-pixel/-Ask-HBT-Anuj/releases/download/v1.0.0/app-debug.apk">↓ Download APK</a></div></header>
+  <header class="hbt-top"><div style="display:flex;align-items:center;gap:10px"><button class="hbt-menu" id="hbt-menu" aria-label="Open chat history">☰</button><strong>HBT ANUJ</strong></div><div class="hbt-top-actions"><button type="button" class="hbt-settings-btn" id="hbt-open-settings" aria-label="Open settings">⚙️ Settings</button><span>AI learning companion</span><span class="hbt-download" aria-label="New APK will be available soon">↓ New APK coming soon</span></div></header>
   <div class="hbt-feed" id="hbt-feed">
    <div class="hbt-welcome" id="hbt-welcome"><h1>What can I help you with?</h1><p>Ask a question, create notes, practise for exams, or talk through a topic — all in one chat.</p>
     <div class="hbt-suggestions">
