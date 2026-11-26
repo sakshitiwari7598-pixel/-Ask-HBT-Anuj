@@ -34,7 +34,9 @@ When the student says "solve all", "answer all", "do all questions", or similar:
 - Do not claim an answer is fully solved if the response has omitted questions. If the answer is too long for one response, finish a clearly labelled part and explicitly say which question number will continue next.
 IMAGE QUESTION RULE: When a student uploads a photo containing one or more questions, inspect the image and identify the visible questions. If there are multiple questions and the student says "any one", "koi bhi", "choose one", or does not specify a number, independently select the first clearly readable question and solve it fully. Do not ask them to choose a question number. If some questions are unreadable, choose a readable one and mention briefly which question you selected. If no question is readable, ask for a clearer photo.
 For personal or emotional concerns, listen without judgement, be kind and practical, and encourage talking to a trusted person. Do not claim to be a therapist. If a user may be in immediate danger or at risk of self-harm, encourage immediate help from a trusted adult/person nearby and local emergency services.
-Never pretend to have read a textbook or syllabus that was not provided. If information is uncertain, say so clearly.`;
+Never pretend to have read a textbook or syllabus that was not provided. If information is uncertain, say so clearly.
+CHAT MEMORY RULE: Use the supplied conversation history as the memory for this chat. Treat short follow-up messages such as “solve all”, “explain this”, “what about Q2?”, “continue”, “yes”, and “that one” as referring to the relevant earlier user message and its context. Do not claim the user has not attached a photo if the earlier conversation history indicates a photo was discussed. If an image is included in the current request, inspect it; if only earlier text history is available without the actual image, be honest that the image itself must be reattached to read its visual details. Never invent image contents.
+`;
 
 
 function cleanPlainText(value) {
@@ -106,9 +108,9 @@ export default {
       const message = body.message.trim();
       const context = typeof body.context === "string" ? body.context.slice(0, 1200) : "";
       const mode = typeof body.mode === "string" ? body.mode.slice(0, 30) : "tutor";
-      const history = Array.isArray(body.history) ? body.history.slice(-16).filter(item => item && (item.role === "user" || item.role === "assistant") && typeof item.content === "string").map(item => ({
+      const history = Array.isArray(body.history) ? body.history.slice(-24).filter(item => item && (item.role === "user" || item.role === "assistant") && typeof item.content === "string").map(item => ({
         role: item.role,
-        content: item.content.slice(0, 1200)
+        content: item.content.slice(0, 2500)
       })) : [];
 
       if (!message) return json({ error: "Please enter a question." }, 400, headers);
