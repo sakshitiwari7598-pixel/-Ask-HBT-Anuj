@@ -131,27 +131,24 @@ async function supportTalk(){let f=$('feeling').value,t=$('feel-text').value.tri
  function renderHistory(){list.replaceChildren();chats.forEach(chat=>{const row=document.createElement('div');row.className='hbt-history-item';const b=document.createElement('button');b.type='button';b.textContent=chat.title||'New chat';b.className='hbt-open-chat'+(chat.id===activeId?' active':'');b.title=chat.title||'New chat';b.onclick=()=>openChat(chat.id);const del=document.createElement('button');del.type='button';del.className='hbt-delete-chat';del.textContent='×';del.title='Delete this chat';del.setAttribute('aria-label','Delete chat: '+(chat.title||'New chat'));del.onclick=(e)=>{e.stopPropagation();if(!confirm('Delete this chat permanently from this browser?'))return;chats=chats.filter(c=>c.id!==chat.id);if(activeId===chat.id){activeId=null;messages=[];welcome()}save();renderHistory();toast('Chat deleted')};row.append(b,del);list.append(row)})}
  function welcome(){feed.replaceChildren();const w=document.createElement('div');w.className='hbt-welcome';w.id='hbt-welcome';w.innerHTML='<h1>What can I help you with?</h1><p>Ask a question, create notes, practise for exams, or talk through a topic — all in one chat.</p><div class="hbt-suggestions"><button data-hbt-prompt="Teach me Newton\'s laws of motion in simple English with examples.">✦ &nbsp; Study &amp; learn<small>Understand any chapter step by step</small></button><button data-hbt-prompt="Create detailed revision notes on Class 9 Science: Force and Laws of Motion.">▤ &nbsp; Make notes<small>Generate clear revision notes</small></button><button data-hbt-prompt="Create 10 mixed-difficulty practice questions on Class 9 Maths: Polynomials, with an answer key at the end.">◎ &nbsp; Practice questions<small>Prepare with topic-wise questions</small></button><button data-hbt-prompt="Make a 20-mark practice test on Class 9 Science: Motion. Include questions and an answer key separately.">▣ &nbsp; Exam preparation<small>Build a test for your next exam</small></button></div>';feed.append(w);w.querySelectorAll('[data-hbt-prompt]').forEach(b=>b.onclick=()=>{input.value=b.dataset.hbtPrompt;window.hbtSendMessage()})}
  function formatMathText(value){return String(value??'')
- .replace(/\\\\?\\\\?\\s*/g,'')
- .replace(/\\\\sqrt\\s*\\{([^{}]+)\\}/g,'√($1)')
- .replace(/\\\\frac\\s*\\{([^{}]+)\\}\\s*\\{([^{}]+)\\}/g,'($1)/($2)')
- .replace(/\\\\times\\b/g,'×').replace(/\\\\div\\b/g,'÷')
- .replace(/\\\\pi\\b/g,'π').replace(/\\\\infty\\b/g,'∞')
- .replace(/\\\\leq?\\b/g,'≤').replace(/\\\\geq?\\b/g,'≥')
- .replace(/\\\\neq\\b/g,'≠')
- .replace(/\\\\left|\\\\right/g,'')
- .replace(/\\\\\\\\\\(|\\\\\\\\\\)/g,'')
- .replace(/\\\\\\\\\\[|\\\\\\\\\\]/g,'')
- .replace(/\\$\\$?/g,'');}
+ .replace(/\\sqrt\s*\{([^{}]+)\}/g,'√($1)')
+ .replace(/\\frac\s*\{([^{}]+)\}\s*\{([^{}]+)\}/g,'($1)/($2)')
+ .replace(/\\times\b/g,'×').replace(/\\div\b/g,'÷')
+ .replace(/\\pi\b/g,'π').replace(/\\infty\b/g,'∞')
+ .replace(/\\leq?\b/g,'≤').replace(/\\geq?\b/g,'≥').replace(/\\neq\b/g,'≠')
+ .replace(/\\left|\\right/g,'')
+ .replace(/\\\(|\\\)|\\\[|\\\]/g,'')
+ .replace(/\$\$?/g,'');}
  function safeMarkdown(value){
   const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-  const lines=formatMathText(value).split(/\\r?\\n/);let out=[],inList=false;
-  for(const line of lines){const t=line.trim();if(/^[-*]\\s+/.test(t)){if(!inList){out.push('<ul>');inList=true;}out.push('<li>'+inline(t.replace(/^[-*]\\s+/,''))+'</li>');continue;}if(inList){out.push('</ul>');inList=false;}
+  const lines=formatMathText(value).split(/\r?\n/);let out=[],inList=false;
+  for(const line of lines){const t=line.trim();if(/^[-*]\s+/.test(t)){if(!inList){out.push('<ul>');inList=true;}out.push('<li>'+inline(t.replace(/^[-*]\s+/,''))+'</li>');continue;}if(inList){out.push('</ul>');inList=false;}
    if(!t){out.push('<div class="md-gap"></div>');continue;}
-   const h=t.match(/^(#{1,3})\\s+(.+)$/);if(h){const n=h[1].length;out.push('<h'+n+'>'+inline(h[2])+'</h'+n+'>');}
-   else if(/^\\d+[.)]\\s+/.test(t)){out.push('<p>'+inline(t.replace(/^\\d+[.)]\\s+/,''))+'</p>');}
+   const h=t.match(/^(#{1,3})\s+(.+)$/);if(h){const n=h[1].length;out.push('<h'+n+'>'+inline(h[2])+'</h'+n+'>');}
+   else if(/^\d+[.)]\s+/.test(t)){out.push('<p>'+inline(t.replace(/^\d+[.)]\s+/,''))+'</p>');}
    else out.push('<p>'+inline(t)+'</p>');
   }if(inList)out.push('</ul>');return out.join('');
-  function inline(s){return esc(s).replace(/\\*\\*(.+?)\\*\\*/g,'<strong>$1</strong>').replace(/\\*(.+?)\\*/g,'<em>$1</em>').replace(/`([^`]+)`/g,'<code>$1</code>');}
+  function inline(s){return esc(s).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\*(.+?)\*/g,'<em>$1</em>');}
  }
  function addBubble(text,role){const row=document.createElement('div');row.className='hbt-msg '+(role==='user'?'user':'assistant');const av=document.createElement('div');av.className='hbt-avatar';av.textContent=role==='user'?'You':'H';const bubble=document.createElement('div');bubble.className='hbt-bubble';bubble.innerHTML=role==='user'?safeMarkdown(text):safeMarkdown(text);row.append(av,bubble);feed.append(row);feed.scrollTop=feed.scrollHeight}
  function drawMessages(){feed.replaceChildren();messages.forEach(m=>addBubble(m.content,m.role))}
