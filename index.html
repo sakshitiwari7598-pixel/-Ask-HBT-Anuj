@@ -88,7 +88,7 @@ async function callAI(message,context='',mode='tutor',chatHistory=[]){
  try{
   let res;
   try{
-   res=await fetch(AI_API_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message,context,mode,history:chatHistory}),signal:controller.signal});
+   res=await fetch(AI_API_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify((()=>{const a=window.HBT_PENDING_ATTACHMENTS||{};return {message:a.pdfText?message+'\n\nPDF content ('+(a.pdfName||'attachment')+'):\n'+a.pdfText:message,context,mode,history:chatHistory,userId:window.hbtMemoryUserId||localStorage.getItem('hbt_memory_user_id')||'',imageData:a.imageData||''};})()),signal:controller.signal});
   }catch(error){
    if(error.name==='AbortError') throw new Error('The AI request took too long. Please try again.');
    throw new Error('Could not reach the AI server. Check your internet connection or try again later.');
@@ -300,14 +300,8 @@ async function supportTalk(){let f=$('feeling').value,t=$('feel-text').value.tri
   window.hbtSendMessage=async function(){
    const hasFile=!!(pending.imageData||pending.pdfText);if(!input.value.trim()&&!hasFile)return;
    if(hasFile&&!input.value.trim())input.value=pending.imageData?'Please solve or explain the question in this photo.':'Please summarise this PDF and explain its important points.';
-   const attached={...pending};if(!attached.imageData&&lastImageData)attached.imageData=lastImageData;const nativeFetch=window.fetch;
-   window.fetch=function(url,opts){
-    if(String(url).includes('crimson-bush-abe0.sakshitiwari7598.workers.dev')&&opts&&typeof opts.body==='string'){
-     try{const body=JSON.parse(opts.body);body.userId=hbtMemoryUserId;if(attached.imageData)body.imageData=attached.imageData;if(attached.pdfText)body.message+='\n\nPDF content ('+attached.pdfName+'):\n'+attached.pdfText;opts={...opts,body:JSON.stringify(body)};}catch(e){}
-    }
-    return nativeFetch.call(this,url,opts);
-   };
-   try{await original();}finally{window.fetch=nativeFetch;pending={imageData:'',imageName:'',pdfText:'',pdfName:''};show(lastImageData?'📷 Photo context is kept for follow-up questions in this chat.':'');}
+   const attached={...pending};if(!attached.imageData&&lastImageData)attached.imageData=lastImageData;window.HBT_PENDING_ATTACHMENTS=attached;window.hbtMemoryUserId=hbtMemoryUserId;
+   try{await original();}finally{window.HBT_PENDING_ATTACHMENTS={};pending={imageData:'',imageName:'',pdfText:'',pdfName:''};show(lastImageData?'📷 Photo context is kept for follow-up questions in this chat.':'');}
   };
  }
 })();
