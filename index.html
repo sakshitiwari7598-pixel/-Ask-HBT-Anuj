@@ -296,7 +296,7 @@ async function supportTalk(){let f=$('feeling').value,t=$('feel-text').value.tri
  const original=window.hbtSendMessage;
  if(typeof original==='function'){
   document.getElementById('hbt-new-chat')?.addEventListener('click',()=>{lastImageData='';show('');});
-  list?.addEventListener('click',e=>{if(e.target.closest('.hbt-open-chat')){lastImageData='';show('');}});
+  document.getElementById('hbt-history-list')?.addEventListener('click',e=>{if(e.target.closest('.hbt-open-chat')){lastImageData='';show('');}});
   window.hbtSendMessage=async function(){
    const hasFile=!!(pending.imageData||pending.pdfText);if(!input.value.trim()&&!hasFile)return;
    if(hasFile&&!input.value.trim())input.value=pending.imageData?'Please solve or explain the question in this photo.':'Please summarise this PDF and explain its important points.';
