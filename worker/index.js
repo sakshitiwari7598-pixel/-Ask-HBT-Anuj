@@ -118,6 +118,24 @@ export default {
 
     try {
       const requestUrl = new URL(request.url);
+      if (requestUrl.pathname === "/generate-pdf-content") {
+        const pdfBody = await request.json();
+        const pdfPrompt = typeof pdfBody?.prompt === "string" ? pdfBody.prompt.trim() : "";
+        if (!pdfPrompt) return json({ error: "Please describe the PDF you want to create." }, 400, headers);
+        if (pdfPrompt.length > 5000) return json({ error: "Please keep the PDF request under 5,000 characters." }, 413, headers);
+        const pdfResult = await env.AI.run(MODEL, {
+          messages: [
+            { role: "system", content: INSTRUCTIONS + "\\n\\nPDF DOCUMENT MODE: Create a complete, well-organized, print-ready document based on the user's request. Use a clear title, meaningful section headings, concise paragraphs, numbered steps and bullet points where useful. For school notes include definitions, explanations, examples, important formulas/key points and a short revision section when appropriate. Do not mention that you are generating a PDF. Output plain text/Markdown only; no HTML, no LaTeX." },
+            { role: "user", content: "Create the full document for this PDF request:\\n" + pdfPrompt }
+          ],
+          max_completion_tokens: 8192,
+          chat_template_kwargs: { enable_thinking: false }
+        }, { rejectIfBusy: true });
+        const pdfText = pdfResult?.response || pdfResult?.choices?.[0]?.message?.content || pdfResult?.result?.response || "";
+        if (!pdfText) return json({ error: "The AI could not create the PDF content. Please try again." }, 502, headers);
+        return json({ title: pdfPrompt.slice(0, 100), content: cleanPlainText(pdfText) }, 200, headers);
+      }
+
       if (requestUrl.pathname === "/generate-image") {
         const imageBody = await request.json();
         const imagePrompt = typeof imageBody?.prompt === "string" ? imageBody.prompt.trim() : "";
