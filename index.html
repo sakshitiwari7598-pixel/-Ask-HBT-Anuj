@@ -169,7 +169,7 @@ async function supportTalk(){let f=$('feeling').value,t=$('feel-text').value.tri
   if(!win){alert("Please allow pop-ups to save your PDF.");return;}
   const escapeHTML=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
   const safeTitle=escapeHTML(title||"HBT ANUJ Notes");
-  const safeContent=escapeHTML(content).replace(/^### (.*)$/gm,"<h3>$1</h3>").replace(/^## (.*)$/gm,"<h2>$1</h2>").replace(/^# (.*)$/gm,"<h1>$1</h1>").replace(/\\*\\*(.*?)\\*\\*/g,"<strong>$1</strong>").replace(/\n/g,"<br>");
+  const safeContent=escapeHTML(content).replace(/^### (.*)$/gm,"<h3>$1</h3>").replace(/^## (.*)$/gm,"<h2>$1</h2>").replace(/^# (.*)$/gm,"<h1>$1</h1>").replace(/\*\*(.*?)\*\*/g,"<strong>$1</strong>").replace(/\n/g,"<br>");
   win.document.open();
   win.document.write("<!doctype html><html><head><meta charset='utf-8'><title>"+safeTitle+"</title><style>@page{size:A4;margin:18mm}body{font-family:Arial,'Noto Sans Devanagari',sans-serif;color:#172033;line-height:1.65;font-size:12pt}h1{font-size:22pt;color:#25345b;border-bottom:2px solid #8b83e8;padding-bottom:8px}h2{font-size:16pt;color:#35466c;margin-top:22px}h3{font-size:13pt;margin-top:16px}p{margin:7px 0}strong{color:#111} .brand{font-size:9pt;color:#69758a;margin-bottom:20px}@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style></head><body><div class='brand'>HBT ANUJ · Learning Companion</div>"+safeContent+"<script>window.onload=()=>setTimeout(()=>window.print(),350)<\/script></body></html>");
   win.document.close();
