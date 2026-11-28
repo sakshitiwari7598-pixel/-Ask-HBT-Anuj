@@ -117,6 +117,17 @@ export default {
     }
 
     try {
+      const requestUrl = new URL(request.url);
+      if (requestUrl.pathname === "/generate-image") {
+        const imageBody = await request.json();
+        const imagePrompt = typeof imageBody?.prompt === "string" ? imageBody.prompt.trim() : "";
+        if (!imagePrompt) return json({ error: "Please describe the image you want to create." }, 400, headers);
+        if (imagePrompt.length > 2048) return json({ error: "Please keep the image description under 2,048 characters." }, 413, headers);
+        const generated = await env.AI.run("@cf/black-forest-labs/flux-1-schnell", { prompt: imagePrompt, steps: 4 });
+        if (!generated?.image) return json({ error: "The image model did not return an image. Please try another prompt." }, 502, headers);
+        return json({ imageData: "data:image/jpeg;base64," + generated.image, prompt: imagePrompt }, 200, headers);
+      }
+
       const contentLength = Number(request.headers.get("Content-Length") || 0);
       if (contentLength > 2600000) return json({ error: "Your request is too large. Please shorten it and try again." }, 413, headers);
       const body = await request.json();
