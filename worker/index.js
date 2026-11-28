@@ -139,11 +139,58 @@ export default {
       if (requestUrl.pathname === "/generate-image") {
         const imageBody = await request.json();
         const imagePrompt = typeof imageBody?.prompt === "string" ? imageBody.prompt.trim() : "";
-        if (!imagePrompt) return json({ error: "Please describe the image you want to create." }, 400, headers);
-        if (imagePrompt.length > 2048) return json({ error: "Please keep the image description under 2,048 characters." }, 413, headers);
-        const generated = await env.AI.run("@cf/black-forest-labs/flux-1-schnell", { prompt: imagePrompt, steps: 4 });
-        if (!generated?.image) return json({ error: "The image model did not return an image. Please try another prompt." }, 502, headers);
-        return json({ imageData: "data:image/jpeg;base64," + generated.image, prompt: imagePrompt }, 200, headers);
+
+        if (!imagePrompt) {
+          return json({ error: "Please describe the image you want to create." }, 400, headers);
+        }
+        if (imagePrompt.length > 2048) {
+          return json({ error: "Please keep the image description under 2,048 characters." }, 413, headers);
+        }
+
+        try {
+          const generated = await env.AI.run("@cf/black-forest-labs/flux-1-schnell", {
+            prompt: imagePrompt,
+            steps: 4
+          });
+
+          // Cloudflare FLUX returns response.image as a base64 string.
+          // Also accept binary image output in case the binding response changes.
+          let imageBase64 = "";
+          if (typeof generated?.image === "string") {
+            imageBase64 = generated.image;
+          } else if (generated?.image instanceof Uint8Array) {
+            let binary = "";
+            for (let i = 0; i < generated.image.length; i += 0x8000) {
+              binary += String.fromCharCode(...generated.image.subarray(i, i + 0x8000));
+            }
+            imageBase64 = btoa(binary);
+          } else if (generated?.image instanceof ArrayBuffer) {
+            const bytes = new Uint8Array(generated.image);
+            let binary = "";
+            for (let i = 0; i < bytes.length; i += 0x8000) {
+              binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+            }
+            imageBase64 = btoa(binary);
+          }
+
+          if (!imageBase64) {
+            return json({
+              error: "Cloudflare FLUX returned no image. Check that the Workers AI binding is enabled and the model is available."
+            }, 502, headers);
+          }
+
+          const imageData = "data:image/jpeg;charset=utf-8;base64," + imageBase64;
+          return json({
+            imageData,
+            dataURI: imageData,
+            prompt: imagePrompt
+          }, 200, headers);
+        } catch (imageError) {
+          const detail = String(imageError?.message || imageError || "Unknown image model error").slice(0, 350);
+          return json({
+            error: "Image generation failed: " + detail
+          }, 502, headers);
+        }
       }
 
       const contentLength = Number(request.headers.get("Content-Length") || 0);
